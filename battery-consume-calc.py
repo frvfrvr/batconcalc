@@ -1,5 +1,3 @@
-#!/opt/homebrew/Caskroom/miniforge/base/envs/playground/bin/python3
-
 # ! Battery Consumption Calculator
 # ! Author: @frvfrvr (github.com/frvfrvr)
 # ! v1 Development Time and Date: Jan-30-2022 6:23 PM - Jan-31-2022 6:34 PM

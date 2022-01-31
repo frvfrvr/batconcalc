@@ -1,3 +1,0 @@
-([('battery-consume-calc',
-   '/Users/francis/Documents/small python projects/dist/battery-consume-calc',
-   'EXECUTABLE')],)
