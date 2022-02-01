@@ -1,5 +1,4 @@
 # battery-consume-calc
-
 Laptop Battery Consumption Benchmark tool
 
 # Installation
@@ -10,12 +9,14 @@ Laptop Battery Consumption Benchmark tool
 
 - macOS (Apple Silicon, Big Sur 11.0-)
 
+
 # Roadmap
 
-- Output Logging in text file
-  - - Calculates overall average time it takes to consume 1%
+- Output Logging in text file 
+- - Calculates overall average time it takes to consume 1%
 - Output Logging in GUI
-  - - include option to save as text file as well
+- - include option to save as text file as well
+
 
 # How to contribute
 
