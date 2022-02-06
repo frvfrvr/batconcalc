@@ -3,15 +3,16 @@
 # ! Author: @frvfrvr (github.com/frvfrvr)
 # ! v0.1 Development Time and Date: Jan-30-2022 6:23 PM - Jan-31-2022 6:34 PM
 
-from tkinter import *
+import os, subprocess, platform
 import psutil
 from datetime import *
+from tkinter import *
 from tkinter.filedialog import asksaveasfile
-import os, subprocess, platform
 
 
 # ? initiliaze the tkinter window
 
+twodgts = lambda x: x > 9 and f'{x}' or f'0{x}' # so the number is formmated as a 2 digit number
 currtoday = datetime.now().strftime("bcc-%I%M%p-%B-%d-%Y")
 filestore = []
 
@@ -31,6 +32,7 @@ def convert(seconds):
 
 def batteryConsumption(dt, batthr, battmin, battsec, battpercent, simple=False, multilog=False):
     # requires datetime, battery hours, battery minutes, battery seconds, battery percentage    
+    global twodgts
     battery = psutil.sensors_battery()
     dthr = int(dt.strftime("%H"))
     dtmin = int(dt.strftime("%M"))
@@ -54,8 +56,7 @@ def batteryConsumption(dt, batthr, battmin, battsec, battpercent, simple=False, 
                     battpercent.append(battery.percent)
                     battsec.append(dtsec) 
                     batthr.append(dthr) 
-                    battmin.append(dtmin) 
-                twodgts = lambda x: x > 9 and f'{x}' or f'0{x}' # so the number is formmated as a 2 digit number
+                    battmin.append(dtmin)
                 s1 = str(twodgts(batthr[-2])) + ':' + str(twodgts(battmin[-2])) + ':' + str(twodgts(battsec[-2])) # before previous time
                 s2 = str(twodgts(batthr[-1])) + ':' + str(twodgts(battmin[-1])) + ':' + str(twodgts(battsec[-1])) # current time
                 FMT = '%H:%M:%S'
@@ -68,11 +69,11 @@ def batteryConsumption(dt, batthr, battmin, battsec, battpercent, simple=False, 
                     )
                 hourminsec = int(tdelta.total_seconds())
                 if multilog == False:
-                    if len(battpercent) > 2:
-                        del battpercent[:-2]
-                        del batthr[:-2]
-                        del battmin[:-2]
-                        del battsec[:-2]
+                    if len(battpercent) > 3:
+                        del battpercent[:-3]
+                        del batthr[:-3]
+                        del battmin[:-3]
+                        del battsec[:-3]
                 return "Battery consumes 1% every " + convert(hourminsec)
             return "Data invalid. Anyway here's the current battery percentage: " + str(battery.percent) + "%"
         else:
@@ -104,12 +105,12 @@ def batteryConsumption(dt, batthr, battmin, battsec, battpercent, simple=False, 
                     )
                 hourminsec = int(tdelta.total_seconds())
                 if multilog == False:
-                    if len(battpercent) > 2:
-                        del battpercent[:-2]
-                        del batthr[:-2]
-                        del battmin[:-2]
-                        del battsec[:-2]
-                return "Battery recharges 1% every " + convert(hourminsec)
+                    if len(battpercent) > 3:
+                        del battpercent[:-3]
+                        del batthr[:-3]
+                        del battmin[:-3]
+                        del battsec[:-3]
+                return "Battery charges 1% every " + convert(hourminsec)
             return "Battery is plugged in, will try to calculate recharging or consumption later"
 
 # ? window appearnce
@@ -124,29 +125,64 @@ window.configure(bg='black', highlightbackground='black', highlightthickness=0)
 window.attributes('-topmost',True) # window will always be on top for benchmark purposes
 
 def coutput(radio):
+    global twodgts
     try:
         file = asksaveasfile(defaultextension=".txt", initialfile=f"{currtoday}.txt")
         filestore.append(file.name)
-        logtime = f"{batthr[-1]}:{battmin[-1]}:{battsec[-1]} - {battpercent[-1]}%\n{batthr[-2]}:{battmin[-2]}:{battsec[-2]} - {battpercent[-2]}%\n"
+        dt = datetime.now()
+        battstat = batteryConsumption(dt, batthr, battmin, battsec, battpercent)
+        logtime = f"{twodgts(batthr[-2])}:{twodgts(battmin[-2])}:{twodgts(battsec[-2])} {battpercent[-2]}%\n{twodgts(batthr[-1])}:{twodgts(battmin[-1])}:{twodgts(battsec[-1])} {battpercent[-1]}% - {battstat}\n"
         file.write(logtime)
         writeappend(filestore[0])
+        B = Button(window, text="Open Log", command= openlog, bd=0, relief=SUNKEN, bg='black', fg='black', font=(None, 6, 'bold'))
+        B.pack(side=BOTTOM, anchor=SE)
         selection = "Logging to " + file.name
         ti.config(text = selection)
         radio.pack_forget()
     except:
         return
 
-def writeappend(filepath):
+def writeappend(filepath, simple=False):
+    global twodgts
     battery = psutil.sensors_battery()
     if filepath != "":
-        if (battery.percent < battpercent[-1]) or (battery.percent > battpercent[-1]):
-            with open(filepath, "a") as f:
-                twodgts = lambda x: x > 9 and f'{x}' or f'0{x}'
-                dt = datetime.now()
-                battstat = batteryConsumption(dt, batthr, battmin, battsec, battpercent)
-                stuff = f"\n{twodgts(batthr[-1])}:{twodgts(battmin[-1])}:{twodgts(battsec[-1])} {battpercent[-1]}% - {battstat}"
-                f.write(stuff)
-                window.after(2000, writeappend, filepath)
+        with open(filepath, "r") as file:
+            lines = [line.strip() for line in file]
+            battp = []
+            for line in lines:
+                battnum = line.split(" ")
+                if "%" in battnum[1]:
+                    # latest line in file with battery percentage as second element in the sentence
+                    battp = battnum[1].split("%")
+                    battp = [var for var in battp if var]
+                    battp = int(battp[0]) # battery percentage becomes a number instead of a string. battp is now integer.
+                    #ti.configure(text = "Logging to: " + filepath)
+                    tinone(1, filepath)
+                else:
+                    #ti.configure(text = "Error writing in log file, retrying... last line: " + line)
+                    tinone(2, line)
+        with open(filepath, "a") as f:
+            dt = datetime.now()
+            battstat = batteryConsumption(dt, batthr, battmin, battsec, battpercent)
+            stuff = f"{twodgts(batthr[-1])}:{twodgts(battmin[-1])}:{twodgts(battsec[-1])} {battpercent[-1]}% - {battstat}\n"
+            f.write(stuff) if simple == True else f.write("")
+            f.write(stuff) if (battery.percent != battp) else None
+            window.after(1000, writeappend, filepath)
+    else:
+        tinone(3)
+        file = asksaveasfile(defaultextension=".txt", initialfile=f"{currtoday}.txt")
+        filepath = file.name
+        tinone(1, file.name)
+        window.after(1000, writeappend, filepath)
+
+def tinone(msg=0, arg=None):
+    # orignally tinone "ti none" was used to render nothing in label named "ti" but later expanded
+    msgs = ["",
+            "Logging to: " + arg,
+            "Error writing in log file, retrying... last line: " + arg, # arg is the last line in the file
+            "No log file found, please create one.",
+            "No log file found, try save continous output first."]
+    ti.configure(text = msgs[msg])
 
 def openlog():
     try:
@@ -158,7 +194,8 @@ def openlog():
         else:                                   # linux variants
             subprocess.call(('xdg-open', filename))
     except Exception:
-        ti.configure(text = "No log file found, try save continuous output first")
+        tinone(4)
+        window.after(4000, tinone)
 
 lbl = Label(window, fg='#01ff48', bg='black', justify='center') # placeholder: text="Battery consumes 1% every XXX hours, XXX minutes, XXX seconds"
 lbl.place(relx=.5, rely=.2, anchor="center") # default very center: relx=.5, rely=.5, anchor="center"
@@ -170,19 +207,17 @@ ti = Label(window, fg='#808080', bg='black', justify='center', font=(None, 8), b
 ti.pack(side=BOTTOM, fill=X) # relx=.5, rely=.75, anchor="center"
 
 R1 = Radiobutton(window, text="Save continuous output", variable=var, value=1,
-                    font=(None, 6), command=lambda: coutput(R1), bg='black')
+                    font=(None, 6, 'bold'), command=lambda: coutput(R1), bg='black')
 R1.pack( anchor = SE, side = 'bottom' )
 
-B = Button(window, text="Open Log", command= openlog, bd=0, relief=SUNKEN, bg='black', font=(None, 6))
-B.pack(side=BOTTOM, anchor=SE)
-    
 def mmainloop():
+    global twodgts
     dt = datetime.now()
     battstat = batteryConsumption(dt, batthr, battmin, battsec, battpercent)
     lbl.configure(text=battstat)
     if len(battpercent) > 1:
-        logtime = f"{batthr[-1]}:{battmin[-1]}:{battsec[-1]} - {battpercent[-1]}%\n{batthr[-2]}:{battmin[-2]}:{battsec[-2]} - {battpercent[-2]}%"
-        timelog.configure(text=logtime)
+        logtime = f"{twodgts(batthr[-1])}:{twodgts(battmin[-1])}:{twodgts(battsec[-1])} {battpercent[-1]}%\n{twodgts(batthr[-2])}:{twodgts(battmin[-2])}:{twodgts(battsec[-2])} {battpercent[-2]}%"
+        timelog.configure(text=logtime)    
     window.after(1000, mmainloop)    
 
 window.after(1000, mmainloop)
