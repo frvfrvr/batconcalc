@@ -2,11 +2,11 @@
 
 Laptop Battery Consumption Benchmark tool
 
-[![Build Status](https://travis-ci.org/jkreps/battery-consume-calc.svg?branch=master)](https://travis-ci.org/jkreps/battery-consume-calc)
-[![Coverage Status](https://coveralls.io/repos/jkreps/battery-consume-calc/badge.svg?branch=master)](https://coveralls.io/r/jkreps/battery-consume-calc?branch=master)
-[![Code Climate](https://codeclimate.com/github/jkreps/battery-consume-calc/badges/gpa.svg)](https://codeclimate.com/github/jkreps/battery-consume-calc)
-![GitHub stars](https://img.shields.io/github/stars/jkreps/battery-consume-calc.svg)
-![GitHub forks](https://img.shields.io/github/forks/jkreps/battery-consume-calc.svg)
+[![Build Status](https://travis-ci.com/frvfrvr/battery-consume-calc.svg?branch=master)](https://travis-ci.com/frvfrvr/battery-consume-calc)
+[![Coverage Status](https://coveralls.io/repos/frvfrvr/battery-consume-calc/badge.svg?branch=master)](https://coveralls.io/r/frvfrvr/battery-consume-calc?branch=master)
+[![Code Climate](https://codeclimate.com/github/frvfrvr/battery-consume-calc/badges/gpa.svg)](https://codeclimate.com/github/frvfrvr/battery-consume-calc)
+![GitHub stars](https://img.shields.io/github/stars/frvfrvr/battery-consume-calc.svg)
+![GitHub forks](https://img.shields.io/github/forks/frvfrvr/battery-consume-calc.svg)
 
 ![](https://i.imgur.com/d2H1aXQ.png)
 
