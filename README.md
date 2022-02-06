@@ -4,7 +4,6 @@ Laptop Battery Consumption Benchmark tool
 
 [![Build Status](https://travis-ci.com/frvfrvr/battery-consume-calc.svg?branch=master)](https://travis-ci.com/frvfrvr/battery-consume-calc)
 [![Coverage Status](https://coveralls.io/repos/frvfrvr/battery-consume-calc/badge.svg?branch=master)](https://coveralls.io/r/frvfrvr/battery-consume-calc?branch=master)
-[![Code Climate](https://codeclimate.com/github/frvfrvr/battery-consume-calc/badges/gpa.svg)](https://codeclimate.com/github/frvfrvr/battery-consume-calc)
 ![GitHub stars](https://img.shields.io/github/stars/frvfrvr/battery-consume-calc.svg)
 ![GitHub forks](https://img.shields.io/github/forks/frvfrvr/battery-consume-calc.svg)
 
