@@ -30,6 +30,9 @@ You can use this tool to calculate the battery consumption of your laptop. This 
 - [x] Battery cycle count monitoring (macOS, Macbook)
 - [x] Add date on log file when battery percentage changes next day
 - [x] Fix minor grammar issue when only hours and seconds are rendered
+- [ ] export to CSV support
+- [ ] battery percentage visual graph on main window
+  - [ ] hoverable data points (unlike the default Battery settings)
 
 ## Build
 
