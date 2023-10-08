@@ -1,7 +1,8 @@
 from pynput import mouse, keyboard
+import os, subprocess, platform
 import psutil
 import csv
-import os, subprocess, platform
+import time
 
 class TimeLog:
     def __init__(self):

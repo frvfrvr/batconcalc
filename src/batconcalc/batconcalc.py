@@ -3,7 +3,7 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import asksaveasfile, askopenfile
-from .helpers import AFKdetector, BatteryState, TimeLog
+from helpers import AFKdetector, BatteryState, TimeLog
 
 class MainWindow:
     def __init__(self, master):
