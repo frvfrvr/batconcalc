@@ -4,10 +4,35 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "batconcalc"
-version = "1.0.0"
+version = "2023.10"
 description = "Laptop Battery Consumption Benchmark tool"
+readme = "README.md"
 authors = [{name = "frvfrvr"}]
-license = "MIT"
+license = {file = "LICENSE"}
+keywords = ["battery", "benchmark", "laptop", "consumption", "power", "linux", "macbook", "windows"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities"
+]
+
+requires-python = ">=3.10"
+dependencies = [
+    "psutil>=5.9.0",
+    "pynput>=1.7.6",
+    ]
+
+[project.urls]
 homepage = "https://github.com/frvfrvr/batconcalc"
 repository = "https://github.com/frvfrvr/batconcalc.git"
+
+
 
