@@ -24,6 +24,8 @@ You can use this tool to calculate the battery consumption of your laptop. This 
 - [x] export to CSV support
 - [ ] battery percentage visual graph on main window
   - [ ] hoverable data points (unlike the default Battery settings)
+- [ ] terminal / no GUI support using curses
+  - [ ] minimizable without tmux
 
 ## Usage
 
