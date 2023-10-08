@@ -1,15 +1,11 @@
-# battery-consume-calc
+# BatConCalc
+## battery-consume-calc
 
 Laptop Battery Consumption Benchmark tool
 
-[![Build Status](https://travis-ci.com/frvfrvr/battery-consume-calc.svg?branch=master)](https://travis-ci.com/frvfrvr/battery-consume-calc)
-[![Coverage Status](https://coveralls.io/repos/frvfrvr/battery-consume-calc/badge.svg?branch=master)](https://coveralls.io/r/frvfrvr/battery-consume-calc?branch=master)
-![GitHub stars](https://img.shields.io/github/stars/frvfrvr/battery-consume-calc.svg)
-![GitHub forks](https://img.shields.io/github/forks/frvfrvr/battery-consume-calc.svg)
-
 ![Battery-consume-calc](https://i.imgur.com/d2H1aXQ.png)
 
-You can use this tool to calculate the battery consumption of your laptop. This tool supports text file logging.
+You can use this tool to calculate the battery consumption of your laptop. This tool supports csv file logging.
 
 ## Installation
 

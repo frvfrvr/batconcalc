@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "batconcalc"
+version = "1.0.0"
+description = "Laptop Battery Consumption Benchmark tool"
+authors = [{name = "frvfrvr"}]
+license = "MIT"
+homepage = "https://github.com/frvfrvr/batconcalc"
+repository = "https://github.com/frvfrvr/batconcalc.git"
+
