@@ -34,5 +34,8 @@ dependencies = [
 homepage = "https://github.com/frvfrvr/batconcalc"
 repository = "https://github.com/frvfrvr/batconcalc.git"
 
+[project.scripts]
+batconcalc = "batconcalc.batconcalc:main"
+
 
 

@@ -3,12 +3,16 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from tkinter.filedialog import asksaveasfile, askopenfile
-from helpers import AFKdetector, BatteryState, TimeLog
+try:
+    from .helpers import AFKdetector, BatteryState, TimeLog
+except (ImportError, ValueError):
+    # pyrefly: ignore [missing-import]
+    from helpers import AFKdetector, BatteryState, TimeLog
 
 class MainWindow:
-    def __init__(self, master):
+    def __init__(self, master, afk_time=None, log_file=None):
         # variable setup
-        self.AFKdetector = AFKdetector()
+        self.AFKdetector = AFKdetector(afk_time=afk_time) if afk_time is not None else AFKdetector()
         self.afk_set_time = self.AFKdetector.afk_time
         self.timelog = TimeLog()
         self.battery = BatteryState()
@@ -64,6 +68,10 @@ class MainWindow:
         self.notebook.pack(expand=1, fill=tk.BOTH)
         
         self.AFKdetector.start()
+        
+        # Pre-load log file if specified
+        if log_file:
+            self.master.after(100, lambda: self.load_log_file(log_file))
 
     def savefile(self):
         self.file = asksaveasfile(defaultextension=".csv")
@@ -79,21 +87,24 @@ class MainWindow:
         except AttributeError:
             pass
         
-    def openfile(self):
-        self.file = askopenfile(defaultextension=".csv")
+    def load_log_file(self, filepath):
+        self.timelog_file = filepath
         self.battery.update()
         try:
-            self.timelog_file = self.file.name if hasattr(self, "file") else None
-            self.statusbar.config(text=f"File saved to {self.timelog_file}")
+            self.statusbar.config(text=f"File loaded from {self.timelog_file}")
             strbool = lambda x: True if str(x).lower() == "true" else False
             self.battery_log_table = []
-            for i in self.timelog.read_last_N_rows(5, self.file.name):
-                log_timestamp = dt.datetime.fromtimestamp(int(i["timestamp"]))
-                log_percent = i["battery_percent"]
-                log_is_charging = "charging" if strbool(i["is_charging"]) else "not charging"
-                log_is_afk = "(AFK)" if strbool(i["is_afk"]) else ''
-                log_cycle = str(i["battery_cycle"]) + " cycles"
-                self.battery_log_table.append(f"{log_timestamp} - {log_percent}% | {log_is_charging} {log_is_afk} ({log_cycle})")
+            rows = self.timelog.read_last_N_rows(5, filepath)
+            if rows:
+                if not isinstance(rows, list):
+                    rows = [rows]
+                for i in rows:
+                    log_timestamp = dt.datetime.fromtimestamp(int(i["timestamp"]))
+                    log_percent = i["battery_percent"]
+                    log_is_charging = "charging" if strbool(i["is_charging"]) else "not charging"
+                    log_is_afk = "(AFK)" if strbool(i["is_afk"]) else ''
+                    log_cycle = str(i["battery_cycle"]) + " cycles"
+                    self.battery_log_table.append(f"{log_timestamp} - {log_percent}% | {log_is_charging} {log_is_afk} ({log_cycle})")
             for i in range(len(self.timelog.data), -1, -1):
                 if i == 5 or IndexError:
                     break
@@ -107,17 +118,24 @@ class MainWindow:
             
             self.battery_log_var.set(self.battery_log_table)
             self.l.pack()
-            self.timelog.csv_create(self.file.name)
+            self.timelog.csv_create(filepath)
             self.timelog.update(timestamp=int(time.time()), battery_percent=self.battery.percent, is_charging=self.battery.is_charging, is_afk=self.AFKdetector.check_if_afk(), battery_cycle=self.battery.cycle_count)
-            start_time = dt.datetime.fromtimestamp(int(self.timelog.scan_last_N_rows(0, self.timelog_file)[-2]["timestamp"]))
-            end_time = dt.datetime.fromtimestamp(int(self.timelog.scan_last_N_rows(0, self.timelog_file)[-1]["timestamp"]))
-            time_difference = self.timelog.time_diff(start_time, end_time)
-            self.label.configure(text=f"Battery {'charging' if self.battery.is_charging else 'consumes'} every {time_difference}")
+            rows_scan = self.timelog.scan_last_N_rows(0, self.timelog_file)
+            if rows_scan and len(rows_scan) >= 2:
+                start_time = dt.datetime.fromtimestamp(int(rows_scan[-2]["timestamp"]))
+                end_time = dt.datetime.fromtimestamp(int(rows_scan[-1]["timestamp"]))
+                time_difference = self.timelog.time_diff(start_time, end_time)
+                self.label.configure(text=f"Battery {'charging' if self.battery.is_charging else 'consumes'} every {time_difference}")
             self.openfile_button["text"] = "Open CSV"
             self.openfile_button["command"] = lambda: self.timelog.csv_open()
             self.savefile_button["state"] = "disabled"
-        except AttributeError:
+        except (AttributeError, KeyError, IndexError, ValueError):
             pass
+        
+    def openfile(self):
+        file = askopenfile(defaultextension=".csv")
+        if file:
+            self.load_log_file(file.name)
         
     def reloop(self):
         # purpose of reloop is to update the GUI every second
@@ -146,7 +164,7 @@ class MainWindow:
                 log_is_afk = "(AFK)" if strbool(self.timelog.read_last_row()["is_afk"]) else ''
                 log_cycle = str(self.timelog.read_last_row()["battery_cycle"]) + " cycles"
                 if len(self.timelog.data) > 1:
-                    self.timelog_file = self.file.name if hasattr(self, "file") else None
+                    self.timelog_file = self.file.name if hasattr(self, "file") else getattr(self, "timelog_file", None)
                     try:
                         start_time = dt.datetime.fromtimestamp(int(self.timelog.scan_last_N_rows(0, self.timelog_file)[-2]["timestamp"]))
                     except:
@@ -181,8 +199,58 @@ class MainWindow:
         self.AFKtime_label.configure(text=f"{self.afk_set_time} seconds")
         self.master.after(1000, self.reloop)
 
-if __name__ == "__main__":
+def run_detached():
+    import sys
+    import subprocess
+    
+    # Re-run the current command in a new session, detached
+    args = [sys.executable] + sys.argv
+    args.append("--detached-child")
+    
+    subprocess.Popen(
+        args,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        stdin=subprocess.DEVNULL,
+        start_new_session=True
+    )
+    sys.exit(0)
+
+def main():
+    import sys
+    import argparse
+    
+    try:
+        from . import __version__
+    except (ImportError, ValueError):
+        __version__ = "2023.10"
+        
+    # Detach if required (unless --foreground or already detached)
+    should_detach = False
+    if "--foreground" not in sys.argv and "--detached-child" not in sys.argv:
+        # Avoid detaching if printing version or help
+        if not any(arg in sys.argv for arg in ["-h", "--help", "--version"]):
+            should_detach = True
+            
+    if "--detached-child" in sys.argv:
+        sys.argv.remove("--detached-child")
+        
+    if should_detach:
+        run_detached()
+        return
+
+    parser = argparse.ArgumentParser(description="Laptop Battery Consumption Benchmark tool")
+    parser.add_argument("--afk", type=int, help="AFK time in seconds")
+    parser.add_argument("--log", type=str, help="Log file path (filetype: .csv)")
+    parser.add_argument("--version", action="version", version=f"batconcalc {__version__}")
+    parser.add_argument("--foreground", action="store_true", help="Run in foreground (do not detach from terminal)")
+    
+    args = parser.parse_args()
+    
     root = tk.Tk()
-    my_gui = MainWindow(root)
+    my_gui = MainWindow(root, afk_time=args.afk, log_file=args.log)
     root.after(2000, my_gui.reloop)
     root.mainloop()
+
+if __name__ == "__main__":
+    main()
