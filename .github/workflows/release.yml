@@ -12,6 +12,7 @@ jobs:
 
     environment:
       name: pypi
+      url: https://pypi.org/p/batconcalc
     
     permissions:
       id-token: write
