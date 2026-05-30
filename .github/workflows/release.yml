@@ -1,0 +1,52 @@
+name: Publish to PyPI and GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build, Publish, and Release
+    runs-on: ubuntu-latest
+    
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # --- NEW STEP: Extract version from pyproject.toml ---
+    - name: Get version from pyproject.toml
+      id: get_version
+      run: |
+        # This inline Python snippet extracts the version under [project]
+        PACKAGE_VERSION=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+        echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
+        echo "version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+
+    - name: Install build tools
+      run: pip install build
+
+    - name: Build package
+      run: python -m build
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://upload.pypi.org/legacy/
+
+    # --- UPDATED STEP: Use the extracted version for the release title ---
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: "Release v${{ env.PACKAGE_VERSION }}" # Uses the version from pyproject.toml
+        files: dist/*
+        generate_release_notes: true
