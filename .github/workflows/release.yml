@@ -9,6 +9,9 @@ jobs:
   release:
     name: Build, Publish, and Release
     runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
     
     permissions:
       id-token: write
@@ -40,13 +43,11 @@ jobs:
 
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        repository-url: https://upload.pypi.org/legacy/
 
     # --- UPDATED STEP: Use the extracted version for the release title ---
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        name: "Release v${{ env.PACKAGE_VERSION }}" # Uses the version from pyproject.toml
+        name: "Release ${{ env.PACKAGE_VERSION }}" # Uses the version from pyproject.toml
         files: dist/*
         generate_release_notes: true
